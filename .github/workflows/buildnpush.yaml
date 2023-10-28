@@ -8,12 +8,18 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DOCKER_REPO: ${{ vars.DOCKER_REPO }}
+      DOCKER_HUB_USER: ${{ secrets.DOCKER_HUB_USER }}
+      DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
       - name: Set Env File
         run: printenv | grep -v "^\(PWD\|SHLVL\|HOME\)" > .env
+
+      - name: "Login to DockerHub"
+        run: docker login --username $DOCKER_HUB_USER --password $DOCKER_HUB_PASSWORD
 
       - name: Build all images
         run: ./remote.py build-all
