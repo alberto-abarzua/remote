@@ -7,6 +7,7 @@ FROM ubuntu:latest
 ENV DEBIAN_FRONTEND=non-interactive
 ENV NVM_DIR=/root/.nvm
 ENV PATH="/usr/local/bin/:${PATH}"
+RUN mkdir /root/.config
 
 RUN apt-get update \
     && apt-get install -y \

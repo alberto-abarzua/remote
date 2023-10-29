@@ -6,6 +6,6 @@ RUN git clone https://github.com/alberto-abarzua/dotfiles.git /root/dotfiles
 WORKDIR /root/dotfiles
 
 # Run install.py
-RUN python3 install.py
+RUN python3 install.py --force
 
 CMD ["/bin/zsh"]
