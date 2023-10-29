@@ -59,7 +59,7 @@ def main():
 
     args = parser.parse_args()
 
-    docker_repo = os.environ["DOCKER_REPO"]
+    docker_repo = "uintuser/remote"
 
     if args.action == "build":
         build_image(args.folder, docker_repo)
