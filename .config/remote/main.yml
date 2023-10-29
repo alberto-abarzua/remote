@@ -1,0 +1,13 @@
+version: "3.8"
+services:
+  remote:
+    image: uintuser/remote:base
+    tty: true
+    volumes:
+      - local:/root/.local/
+      - cache:/root/.cache/
+      - tmux_plugins:/root/.tmux/plugins/
+volumes:
+  local:
+  tmux_plugins:
+  cache:

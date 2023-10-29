@@ -1,0 +1,5 @@
+services:
+  remote:
+    volumes:
+    - /home/albertoa/git-local/robot-arm-control:/root/workspace/
+version: '3.8'
