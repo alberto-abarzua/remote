@@ -21,7 +21,11 @@ def push_image(folder_name, docker_repo):
 
 def build_all(docker_repo):
     dockerfiles_dir = CURRENT_DIR / "dockerfiles"
-    for folder in os.listdir(dockerfiles_dir):
+    build_image("base", docker_repo)
+    dockerfiles = os.listdir(dockerfiles_dir)
+    dockerfiles.remove("base")
+
+    for folder in dockerfiles:
         if os.path.isdir(dockerfiles_dir / folder):
             build_image(folder, docker_repo)
 
