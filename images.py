@@ -8,15 +8,6 @@ import os
 CURRENT_DIR = Path(__file__).parent.absolute()
 
 
-def load_env():
-    with open(CURRENT_DIR / ".env") as f:
-        for line in f:
-            if line.startswith("#"):
-                continue
-            key, value = line.strip().split("=")
-            os.environ[key] = value
-
-
 def build_image(folder_name, docker_repo):
     dockerfile_dir = str(CURRENT_DIR / "dockerfiles" / folder_name)
     image_tag = f"{docker_repo}:{folder_name}"
@@ -43,7 +34,6 @@ def push_all(docker_repo):
 
 
 def main():
-    load_env()
     parser = argparse.ArgumentParser(description="Docker image builder and pusher")
     subparsers = parser.add_subparsers(dest="action")
 
@@ -53,9 +43,9 @@ def main():
     push_parser = subparsers.add_parser("push")
     push_parser.add_argument("folder", type=str, help="Name of the folder containing the Dockerfile")
 
-    build_all_parser = subparsers.add_parser("build-all")
+    subparsers.add_parser("build-all")
 
-    push_all_parser = subparsers.add_parser("push-all")
+    subparsers.add_parser("push-all")
 
     args = parser.parse_args()
 

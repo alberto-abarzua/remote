@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   remote:
-    image: $DOCKER_REPO:base
+    image: uintuser:base
     tty: true
     volumes:
       - ../:/root/workspace/
