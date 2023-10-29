@@ -75,5 +75,4 @@ RUN add-apt-repository ppa:deadsnakes/ppa -y \
 RUN pip3 install pdm
 
 
-# Keep running doing nothing
-CMD ["tail", "-f", "/dev/null"]
+CMD ["/bin/zsh"]

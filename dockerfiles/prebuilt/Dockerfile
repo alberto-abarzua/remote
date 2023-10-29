@@ -83,5 +83,4 @@ WORKDIR /root/dotfiles
 # Run install.py
 RUN python3 install.py
 
-# Keep running doing nothing
-CMD ["tail", "-f", "/dev/null"]
+CMD ["/bin/zsh"]
