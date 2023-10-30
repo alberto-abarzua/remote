@@ -20,7 +20,6 @@ RUN apt-get update \
     kitty-terminfo \
     neofetch \
     ripgrep \
-    openssh-server \
     software-properties-common
 
 RUN chsh -s $(which zsh)
@@ -77,12 +76,21 @@ RUN add-apt-repository ppa:deadsnakes/ppa -y \
 
 RUN pip3 install pdm
 
-# SSH
-RUN mkdir /var/run/sshd
-RUN echo 'root:root' | chpasswd
-RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
-RUN echo 'MaxAuthTries 0' >> /etc/ssh/sshd_config 
+## =======================
+#     Additional Tools
+## =======================
+
+RUN apt-get install -y openssh-server
+RUN mkdir /run/sshd
+RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
+RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+RUN echo "root:root" | chpasswd
+
+# Add startup script for SSH
+RUN echo '#!/bin/bash' > /start.sh \
+    && echo '/usr/sbin/sshd -D' >> /start.sh \
+    && chmod +x /start.sh
 
 EXPOSE 22
 
-CMD ["/usr/sbin/sshd", "-D"]
+CMD ["/start.sh"]
