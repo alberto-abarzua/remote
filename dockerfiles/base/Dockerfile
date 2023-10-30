@@ -80,7 +80,10 @@ RUN pip3 install pdm
 #     Additional Tools
 ## =======================
 
-RUN apt-get install -y openssh-server
+RUN apt-get install -y openssh-server \
+    xauth \
+    xclip
+
 RUN mkdir /run/sshd
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
