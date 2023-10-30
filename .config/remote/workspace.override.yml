@@ -1,5 +1,0 @@
-services:
-  remote:
-    volumes:
-    - /home/albertoa/git-local:/root/workspace/
-version: '3.8'

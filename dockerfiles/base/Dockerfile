@@ -19,6 +19,8 @@ RUN apt-get update \
     locales \
     kitty-terminfo \
     neofetch \
+    ripgrep \
+    openssh-server \
     software-properties-common
 
 RUN chsh -s $(which zsh)
@@ -75,5 +77,12 @@ RUN add-apt-repository ppa:deadsnakes/ppa -y \
 
 RUN pip3 install pdm
 
+# SSH
+RUN mkdir /var/run/sshd
+RUN echo 'root:root' | chpasswd
+RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
+RUN echo 'MaxAuthTries 0' >> /etc/ssh/sshd_config 
 
-CMD ["/bin/zsh"]
+EXPOSE 22
+
+CMD ["/usr/sbin/sshd", "-D"]

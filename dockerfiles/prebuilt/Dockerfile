@@ -8,4 +8,4 @@ WORKDIR /root/dotfiles
 # Run install.py
 RUN python3 install.py --force
 
-CMD ["/bin/zsh"]
+
