@@ -1,20 +1,23 @@
-# Docker images for NeoVim development inside a container
-
+# Docker Images for NeoVim Development Inside a Container
 
 ## Images
 
-- `base`: Base image with NeoVim, tmux, ssh, zsh, Python, NodeJS, and C++ development tools, this image has no config files so volumes can be mounted to it.
+- **base**: 
+  - A foundational image containing NeoVim, tmux, ssh, zsh, Python, NodeJS, and C++ development tools.
+  - This image is void of configuration files, allowing volumes to be easily mounted.
 
-- `prebuilt`: Image based on `base` with my config files for NeoVim, tmux, zsh and other tools.
+- **prebuilt**: 
+  - Derived from the `base` image.
+  - Preconfigured with settings for NeoVim, tmux, zsh, and other tools.
 
 ## Usage
 
+### Using Directly (No Installation Required)
 
-### Simple way no isntallation needed
-Simplest way is to just create a folder inside your project named `remote` and add a `docker-compose.yml` file with the following content:
+1. Create a folder named `remote` within your project.
+2. Add a `docker-compose.yml` file inside the `remote` folder with the following content:
 
 ```yaml
-
 version: "3.8"
 services:
   remote:
@@ -22,23 +25,21 @@ services:
     tty: true
     privileged: true
     command: /usr/sbin/sshd -D
-    deploy: # Resource constraints
+    deploy:
       resources:
         limits:
           cpus: "4"
           memory: 8G
     volumes:
-      - type: tmpfs # Use tmpfs for I/O-intensive ops
+      - type: tmpfs # Optimize I/O operations
         target: /tmp
       - type: tmpfs
         target: /root/.cache/
       - local:/root/.local/
       - cache:/root/.cache/
       - tmux_plugins:/root/.tmux/plugins/
-        # Workspace folder
-      - ../.:/root/workspace/
-        # Your config files add or remove as needed
-      - $HOME/.config/nvim:/root/.config/nvim
+      - ../.:/root/workspace/ # Mount the project's root directory
+      - $HOME/.config/nvim:/root/.config/nvim # Mount the configuration files
       - $HOME/.config/github-copilot/:/root/.config/github-copilot/
       - $HOME/.zshrc:/root/.zshrc
       - $HOME/.p10k.zsh:/root/.p10k.zsh
@@ -50,33 +51,31 @@ volumes:
   local:
   tmux_plugins:
   cache:
-
 ```
-Then in the `remote` folder run `docker compose up -d` to start the container and the ssh server.
 
-To connect to the container you can run a shell using 
-- `docker compose run remote /bin/zsh` 
-or connect to the container using ssh
+3. Inside the `remote` folder, execute `docker compose up -d` to initialize the container and the ssh server.
 
-- `ssh root@localhost -p 2222` the password is `root`.
+4. To access the container:
+   - Utilize a shell: `docker compose run remote /bin/zsh`
+   - Or, connect via ssh: `ssh root@localhost -p 2222` (password: `root`).
+   - For a more comprehensive ssh command with compression and without host key warnings, use:
+     - `sshpass -p 'root' ssh -o StrictHostKeyChecking=no -C root@localhost -p 2222 -t 'cd /root/workspace; /bin/zsh' 2>/dev/null`
+     - Note: This requires the `sshpass` utility. Install it using your package manager.
 
-A more complete ssh command, with compression and no warnings about the host key, would be:
+### Installation Method
 
-- `sshpass -p 'root' ssh -o StrictHostKeyChecking=no -C root@localhost -p 2222 -t 'cd /root/workspace; /bin/zsh' 2>/dev/null")`
+1. Clone this repository.
+2. Symlink `remote.py` to a directory within your `$PATH`.
+3. Utilize `remote.py` at any project's root directory. This will create a `.remote` folder containing the `docker-compose.yml` file and any configuration files you intend to mount to the container.
 
-This requires sshpass to be installed. (Use your package manager to install it)
-
-
-### Install the script
-
-The best way to use this is to clone this repo and symlink `remote.py` to a folder in your `$PATH` and then use `remote.py` to start the container.
-
-
-Now you can run remote.py at the root of any project and create a `.remote` folder with the `docker-compose.yml` file and the config files you want to mount to the container.
+Command to initiate:
 
 ```bash
 remote.py
 ```
-The script also has other options that can be viewed using `remote.py --help`
 
+For additional commands and options, use:
 
+```bash
+remote.py --help
+```
