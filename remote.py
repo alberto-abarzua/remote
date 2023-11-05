@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import time
 import socket
 import os
 import argparse
@@ -19,7 +20,7 @@ def create_override_file(ssh_port: int):
         "version": "3.8",
         "services": {
             "remote": {
-                "ports": [f"{ssh_port}:22"],
+                "ports": [f"127.0.0.1:{ssh_port}:22"],
                 "volumes": [f"{workspace_path}:/workspace"],
             }
         },
@@ -91,6 +92,7 @@ def run_compose_command(command: str):
 
 def run_ssh(port: int):
     target_dir = '/root/workspace'
+    os.system('clear')
     os.system(
         f"sshpass -p 'root' ssh -o StrictHostKeyChecking=no -C root@localhost -p {port} -t 'cd {target_dir}; /bin/zsh' 2>/dev/null")
 
@@ -128,9 +130,11 @@ if __name__ == "__main__":
     if running:
         print("Remote environment is already running")
         port = get_port_from_current_override_file()
-        run_ssh(port)
+        if port:
+            run_ssh(port)
     else:
         available_port = get_available_port_for_ssh()
         create_override_file(available_port)
         run_docker_compose()
+        time.sleep(0.5)
         run_ssh(available_port)
