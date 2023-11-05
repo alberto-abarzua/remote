@@ -87,6 +87,9 @@ RUN apt-get install -y openssh-server \
 RUN mkdir /run/sshd
 RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
 RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
+
+# ONLY ALLOW SSH FROM LOCALHOST
+RUN echo "ListenAddress 127.0.0.1" >> /etc/ssh/sshd_config
 RUN echo "root:root" | chpasswd
 
 # Add startup script for SSH
