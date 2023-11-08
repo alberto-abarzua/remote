@@ -1,0 +1,33 @@
+version: "3.8"
+services:
+  remote:
+    image: uintuser/remote:base
+    tty: true
+    privileged: true
+    command: /usr/sbin/sshd -D
+    deploy: # Resource constraints
+      resources:
+        limits:
+          cpus: "4"
+          memory: 8G
+    volumes:
+      - type: tmpfs # Use tmpfs for I/O-intensive ops
+        target: /tmp
+      - type: tmpfs
+        target: /root/.cache/
+      - local:/root/.local/
+      - cache:/root/.cache/
+      - tmux_plugins:/root/.tmux/plugins/
+      - ../.:/root/workspace/
+      - $HOME/.config/nvim:/root/.config/nvim
+      - $HOME/.config/github-copilot/:/root/.config/github-copilot/
+      - $HOME/.zshrc:/root/.zshrc
+      - $HOME/.p10k.zsh:/root/.p10k.zsh
+      - $HOME/.tmux.conf:/root/.tmux.conf
+      - $HOME/.gitconfig:/root/.gitconfig
+    ports:
+      - "127.0.0.1:2222:22" # The 127.0.0.1 is important for security (only allows local connections)
+volumes:
+  local:
+  tmux_plugins:
+  cache:

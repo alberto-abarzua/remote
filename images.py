@@ -8,10 +8,16 @@ import os
 CURRENT_DIR = Path(__file__).parent.absolute()
 
 
-def build_image(folder_name, docker_repo):
+def build_image(folder_name, docker_repo, no_cache=False):
     dockerfile_dir = str(CURRENT_DIR / "dockerfiles" / folder_name)
     image_tag = f"{docker_repo}:{folder_name}"
-    subprocess.run(["docker", "build", "-t", image_tag, dockerfile_dir])
+    command = ["docker", "build"]
+    if no_cache:
+        command.append("--no-cache")
+    command.extend(["-t", image_tag, dockerfile_dir])
+
+    print(" ".join(command))
+    subprocess.run(command)
 
 
 def push_image(folder_name, docker_repo):
@@ -43,6 +49,8 @@ def main():
 
     build_parser = subparsers.add_parser("build")
     build_parser.add_argument("folder", type=str, help="Name of the folder containing the Dockerfile")
+    # --no-cache option
+    build_parser.add_argument("--no-cache", action="store_true", help="Do not use cache when building the image")
 
     push_parser = subparsers.add_parser("push")
     push_parser.add_argument("folder", type=str, help="Name of the folder containing the Dockerfile")
@@ -56,7 +64,7 @@ def main():
     docker_repo = "uintuser/remote"
 
     if args.action == "build":
-        build_image(args.folder, docker_repo)
+        build_image(args.folder, docker_repo, args.no_cache)
     elif args.action == "push":
         push_image(args.folder, docker_repo)
     elif args.action == "build-all":

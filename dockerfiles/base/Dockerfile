@@ -1,16 +1,16 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
 ## =======================
 #          Setup
 ## =======================
 
 ENV DEBIAN_FRONTEND=non-interactive
-ENV NVM_DIR=/root/.nvm
 ENV PATH="/usr/local/bin/:${PATH}"
-RUN mkdir /root/.config
+RUN mkdir /root/.config && mkdir -p /etc/apt/keyrings
+SHELL ["/bin/bash","-o","pipefail","-c"]
 
-RUN apt-get update \
-    && apt-get install -y \
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
     tmux \
@@ -20,25 +20,38 @@ RUN apt-get update \
     kitty-terminfo \
     neofetch \
     ripgrep \
-    software-properties-common
+    openssh-server \
+    xauth \
+    xclip \
+    gnupg \
+    software-properties-common \
+    && locale-gen en_US.UTF-8 \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN chsh -s $(which zsh)
-
-# Locale and encoding
-RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
+RUN chsh -s "$(which zsh)"
 
 ## =======================
 #      Coding Tools
 ## =======================
 
-RUN curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
-RUN chmod u+x nvim.appimage
-RUN ./nvim.appimage --appimage-extract
-RUN ln -s /squashfs-root/AppRun /usr/bin/nvim
+# hadolint ignore=DL3008
+RUN curl -SLO https://deb.nodesource.com/nsolid_setup_deb.sh && \
+    chmod 500 nsolid_setup_deb.sh && \
+    ./nsolid_setup_deb.sh 21 && \
+    apt-get install -y --no-install-recommends nodejs && \
+    rm -f nsolid_setup_deb.sh && \
+    rm -rf /var/lib/apt/lists/*
+
+# --- NeoVim
+RUN curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage && \
+    chmod u+x nvim.appimage && \
+    ./nvim.appimage --appimage-extract && \
+    ln -s /squashfs-root/AppRun /usr/bin/nvim
+
 
 # --- Tmux
 
@@ -48,51 +61,49 @@ RUN git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 #     Languages & Deps 
 ## =======================
 
-RUN apt-get install -y \
+# hadolint ignore=DL3008
+RUN apt-get update && apt-get install -y --no-install-recommends \
     cmake \
     make \
     clang \
     llvm \
     build-essential \
-    clang-tools
-
-# --- NodeJS
-
-RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash \
-    && . "$NVM_DIR/nvm.sh" \
-    && nvm install node
-ENV NVM_DIR /root/.nvm
-RUN echo 'export NVM_DIR="/root/.nvm"' >> /etc/zsh/zshenv \
-    && echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /etc/zsh/zshenv \
-    && echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> /etc/zsh/zshenv
-ENV PATH="/root/.nvm/versions/node/v16.13.0/bin/:${PATH}"
+    clang-tools \
+    clang-tidy \
+    clang-format \
+    && rm -rf /var/lib/apt/lists/*
 
 # --- Python
+
+# hadolint ignore=DL3008
 RUN add-apt-repository ppa:deadsnakes/ppa -y \
     && apt-get update \
-    && apt-get install -y python3.11 \
-    python3.10-venv \
-    python3-pip
+    && apt-get install -y --no-install-recommends python3.11 python3.10-venv python3-pip \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN pip3 install pdm
+
+# hadolint ignore=DL3013
+RUN pip3 --no-cache-dir install pdm autopep8 pylint
+
+# --- Docker linter
+
+ARG HADOLINT_VERSION=v2.12.0
+ADD https://github.com/hadolint/hadolint/releases/download/${HADOLINT_VERSION}/hadolint-Linux-x86_64 /bin/hadolint
+RUN chmod +x /bin/hadolint
 
 ## =======================
 #     Additional Tools
 ## =======================
 
-RUN apt-get install -y openssh-server \
-    xauth \
-    xclip
-
-RUN mkdir /run/sshd
-RUN echo "PermitRootLogin yes" >> /etc/ssh/sshd_config
-RUN echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config
-RUN echo "root:root" | chpasswd
-
-# Add startup script for SSH
-RUN echo '#!/bin/bash' > /start.sh \
-    && echo '/usr/sbin/sshd -D' >> /start.sh \
-    && chmod +x /start.sh
+# Setup SSH service
+RUN mkdir /run/sshd && \
+    echo "PermitRootLogin yes" >> /etc/ssh/sshd_config && \
+    echo "PasswordAuthentication yes" >> /etc/ssh/sshd_config && \
+    echo "root:root" | chpasswd && \
+    { \
+      echo '#!/bin/bash'; \
+      echo '/usr/sbin/sshd -D'; \
+    } > /start.sh && chmod +x /start.sh
 
 EXPOSE 22
 
