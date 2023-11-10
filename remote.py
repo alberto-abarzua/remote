@@ -48,7 +48,7 @@ def get_remote_dir():
 def is_docker_compose_running(target_port: int):
     try:
         remote_dir = get_remote_dir()
-        output = subprocess.check_output(["docker-compose", "ps"], cwd=remote_dir).decode().strip()
+        output = subprocess.check_output(["docker","compose", "ps"], cwd=remote_dir).decode().strip()
         lines = output.split("\n")
         for line in lines[2:]:  # Skip the header lines
             if str(target_port) in line and "Up" in line:
@@ -71,21 +71,21 @@ def get_port_from_current_override_file():
 
 def run_docker_compose():
     remote_dir = get_remote_dir()
-    subprocess.run(["docker-compose", '-f', 'docker-compose.yml', '-f', 'docker-compose.override.yml', "up", "-d"],
+    subprocess.run(["docker","compose", '-f', 'docker-compose.yml', '-f', 'docker-compose.override.yml', "up", "-d"],
                    cwd=remote_dir
                    )
 
 
 def down_docker_compose():
     remote_dir = get_remote_dir()
-    subprocess.run(["docker-compose", '-f', 'docker-compose.yml', '-f', 'docker-compose.override.yml', "down"],
+    subprocess.run(["docker","compose", '-f', 'docker-compose.yml', '-f', 'docker-compose.override.yml', "down"],
                    cwd=remote_dir
                    )
 
 
 def run_compose_command(command: str):
     remote_dir = get_remote_dir()
-    subprocess.run(["docker-compose", '-f', 'docker-compose.yml', '-f', 'docker-compose.override.yml', command],
+    subprocess.run(["docker","compose", '-f', 'docker-compose.yml', '-f', 'docker-compose.override.yml', command],
                    cwd=remote_dir
                    )
 
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     remote_dir = get_remote_dir()
 
     if args.down:
-        subprocess.run(["docker-compose", '-f', 'docker-compose.yml', '-f', 'docker-compose.override.yml', "down"],
+        subprocess.run(["docker","compose", '-f', 'docker-compose.yml', '-f', 'docker-compose.override.yml', "down"],
                        cwd=remote_dir
                        )
         exit(0)
