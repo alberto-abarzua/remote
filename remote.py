@@ -45,17 +45,6 @@ def get_remote_dir():
     return remote_dir
 
 
-def is_docker_compose_running(target_port: int):
-    try:
-        remote_dir = get_remote_dir()
-        output = subprocess.check_output(["docker","compose", "ps"], cwd=remote_dir).decode().strip()
-        lines = output.split("\n")
-        for line in lines[2:]:  # Skip the header lines
-            if str(target_port) in line and "Up" in line:
-                return True
-        return False
-    except subprocess.CalledProcessError:
-        return False
 
 
 def get_port_from_current_override_file():
@@ -63,7 +52,7 @@ def get_port_from_current_override_file():
         remote_dir = get_remote_dir()
         with open(remote_dir / "docker-compose.override.yml", "r") as f:
             dict_file = yaml.load(f, Loader=yaml.FullLoader)
-        port = dict_file["services"]["remote"]["ports"][0].split(":")[0]
+        port = dict_file["services"]["remote"]["ports"][0].split(":")[1]
         return port
     except:
         return None
@@ -92,7 +81,7 @@ def run_compose_command(command: str):
 
 def run_ssh(port: int):
     target_dir = '/root/workspace'
-    os.system('clear')
+    # os.system('clear')
     os.system(
         f"sshpass -p 'root' ssh -o StrictHostKeyChecking=no -CX root@localhost -p {port} -t 'cd {target_dir}; /bin/zsh' 2>/dev/null")
 
@@ -122,14 +111,20 @@ if __name__ == "__main__":
         run_compose_command(args.command)
         exit(0)
     existing_port = get_port_from_current_override_file()
+
     running = False
     if existing_port:
-        running = is_docker_compose_running(existing_port)
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(("", int(existing_port)))
+                running = False
+            except:
+                running = True
 
-    print("Running: ", running)
     if running:
         print("Remote environment is already running")
         port = get_port_from_current_override_file()
+        print(f"Connecting to port {port}")
         if port:
             run_ssh(port)
     else:
