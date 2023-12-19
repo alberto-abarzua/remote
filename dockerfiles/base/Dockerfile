@@ -81,6 +81,11 @@ RUN add-apt-repository ppa:deadsnakes/ppa -y \
     && apt-get install -y --no-install-recommends python3.11 python3.10-venv python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
+# --- Rust
+
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y 
+
+
 
 # hadolint ignore=DL3013
 RUN pip3 --no-cache-dir install pdm autopep8 pylint

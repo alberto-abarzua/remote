@@ -83,7 +83,7 @@ def run_ssh(port: int):
     target_dir = '/root/workspace'
     # os.system('clear')
     os.system(
-        f"sshpass -p 'root' ssh -o StrictHostKeyChecking=no -CX root@localhost -p {port} -t 'cd {target_dir}; /bin/zsh' 2>/dev/null")
+        f"sshpass -p 'root' ssh -o StrictHostKeyChecking=no -CX root@localhost -p {port} -t 'cd {target_dir}; /bin/zsh'")
 
 
 if __name__ == "__main__":

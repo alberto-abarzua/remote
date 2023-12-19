@@ -64,7 +64,12 @@ volumes:
 
 ### Installation Method
 
-1. Clone this repository.
+1. Clone this repository and isntall `sshpass`
+
+```bash
+git clone https://github.com/alberto-abarzua/remote
+sudo apt install sshpass
+```
 2. Symlink `remote.py` to a directory within your `$PATH`.
 3. Utilize `remote.py` at any project's root directory. This will create a `.remote` folder containing the `docker-compose.yml` file and any configuration files you intend to mount to the container.
 
