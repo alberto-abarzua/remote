@@ -76,9 +76,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # --- Python
 
 # hadolint ignore=DL3008
-RUN add-apt-repository ppa:deadsnakes/ppa -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    software-properties-common \
+    && add-apt-repository ppa:deadsnakes/ppa -y \
     && apt-get update \
-    && apt-get install -y --no-install-recommends python3.11 python3.10-venv python3-pip \
+    && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 # --- Rust
